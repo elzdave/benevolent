@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 /**
- * @method static \App\Extensions\HttpClient useAuth(string $token = null, string $schema = null)
+ * @method static \Elzdave\Benevolent\HttpClient useAuth(string $token = null, string $schema = null)
  * @method static \GuzzleHttp\Promise\PromiseInterface response($body = null, $status = 200, $headers = [])
  * @method static \Illuminate\Http\Client\Factory fake($callback = null)
  * @method static \Illuminate\Http\Client\PendingRequest accept(string $contentType)
@@ -15,12 +15,16 @@ use Illuminate\Support\Str;
  * @method static \Illuminate\Http\Client\PendingRequest asForm()
  * @method static \Illuminate\Http\Client\PendingRequest asJson()
  * @method static \Illuminate\Http\Client\PendingRequest asMultipart()
- * @method static \Illuminate\Http\Client\PendingRequest attach(string $name, string $contents, string|null $filename = null, array $headers = [])
+ * @method static \Illuminate\Http\Client\PendingRequest async()
+ * @method static \Illuminate\Http\Client\PendingRequest attach(string|array $name, string $contents = '', string|null $filename = null, array $headers = [])
  * @method static \Illuminate\Http\Client\PendingRequest baseUrl(string $url)
  * @method static \Illuminate\Http\Client\PendingRequest beforeSending(callable $callback)
  * @method static \Illuminate\Http\Client\PendingRequest bodyFormat(string $format)
  * @method static \Illuminate\Http\Client\PendingRequest contentType(string $contentType)
- * @method static \Illuminate\Http\Client\PendingRequest retry(int $times, int $sleep = 0)
+ * @method static \Illuminate\Http\Client\PendingRequest dd()
+ * @method static \Illuminate\Http\Client\PendingRequest dump()
+ * @method static \Illuminate\Http\Client\PendingRequest retry(int $times, int $sleep = 0, ?callable $when = null)
+ * @method static \Illuminate\Http\Client\PendingRequest sink(string|resource $to)
  * @method static \Illuminate\Http\Client\PendingRequest stub(callable $callback)
  * @method static \Illuminate\Http\Client\PendingRequest timeout(int $seconds)
  * @method static \Illuminate\Http\Client\PendingRequest withBasicAuth(string $username, string $password)
@@ -28,20 +32,21 @@ use Illuminate\Support\Str;
  * @method static \Illuminate\Http\Client\PendingRequest withCookies(array $cookies, string $domain)
  * @method static \Illuminate\Http\Client\PendingRequest withDigestAuth(string $username, string $password)
  * @method static \Illuminate\Http\Client\PendingRequest withHeaders(array $headers)
+ * @method static \Illuminate\Http\Client\PendingRequest withMiddleware(callable $middleware)
  * @method static \Illuminate\Http\Client\PendingRequest withOptions(array $options)
  * @method static \Illuminate\Http\Client\PendingRequest withToken(string $token, string $type = 'Bearer')
+ * @method static \Illuminate\Http\Client\PendingRequest withUserAgent(string $userAgent)
  * @method static \Illuminate\Http\Client\PendingRequest withoutRedirecting()
  * @method static \Illuminate\Http\Client\PendingRequest withoutVerifying()
+ * @method static array pool(callable $callback)
  * @method static \Illuminate\Http\Client\Response delete(string $url, array $data = [])
- * @method static \Illuminate\Http\Client\Response get(string $url, array $query = [])
- * @method static \Illuminate\Http\Client\Response head(string $url, array $query = [])
+ * @method static \Illuminate\Http\Client\Response get(string $url, array|string|null $query = null)
+ * @method static \Illuminate\Http\Client\Response head(string $url, array|string|null $query = null)
  * @method static \Illuminate\Http\Client\Response patch(string $url, array $data = [])
  * @method static \Illuminate\Http\Client\Response post(string $url, array $data = [])
  * @method static \Illuminate\Http\Client\Response put(string $url, array $data = [])
  * @method static \Illuminate\Http\Client\Response send(string $method, string $url, array $options = [])
  * @method static \Illuminate\Http\Client\ResponseSequence fakeSequence(string $urlPattern = '*')
- *
- * @see \Illuminate\Http\Client\Factory
  */
 class HttpClient
 {
@@ -142,6 +147,41 @@ class HttpClient
         $this->sessionLifetime = config('session.lifetime', 120);
     }
 
+    /**
+     * Create a new response instance for use during stubbing.
+     *
+     * @param  array|string  $body
+     * @param  int  $status
+     * @param  array  $headers
+     * @return \GuzzleHttp\Promise\PromiseInterface
+     */
+    public static function response($body = null, $status = 200, $headers = [])
+    {
+        return \Illuminate\Support\Facades\Http::response($body, $status, $headers);
+    }
+
+    /**
+     * Register a stub callable that will intercept requests and be able to return stub responses.
+     *
+     * @param  callable|array  $callback
+     * @return $this
+     */
+    public static function fake($callback = null)
+    {
+        return \Illuminate\Support\Facades\Http::fake($callback);
+    }
+
+    /**
+     * Get an invokable object that returns a sequence of responses in order for use during stubbing.
+     *
+     * @param  array  $responses
+     * @return \Illuminate\Http\Client\ResponseSequence
+     */
+    public static function sequence(array $responses = [])
+    {
+        return \Illuminate\Support\Facades\Http::sequence($responses);
+    }
+
     public function __call($method, $args)
     {
         if ($this->isHttpMethod($method)) {
@@ -195,7 +235,9 @@ class HttpClient
             $userSchema = method_exists($user, 'getTokenSchema') ? $user->getTokenSchema() : $schema;
 
             $this->isAuthenticatedRequest = true;
-            $this->getInstance()->withToken($userToken, $userSchema);
+            $client = $this->getInstance()->withToken($userToken, $userSchema);
+
+            $this->setInstance($client);
         } else {
             // The current session is unauthenticated.
             $this->isAuthenticatedRequest = false;
@@ -223,7 +265,7 @@ class HttpClient
                 $this->terminateSession();
             } else {
                 // Retrying request...
-                $response = $this->getInstance()->$method(...$args);
+                return $this->getInstance()->$method(...$args);
             }
         }
 
@@ -242,6 +284,11 @@ class HttpClient
         }
 
         return $this->httpClient;
+    }
+
+    protected function setInstance($instance)
+    {
+        $this->httpClient = $instance;
     }
 
     /**
@@ -299,6 +346,10 @@ class HttpClient
             if (! is_null($result[$this->refreshTokenName])) {
                 $user->setRefreshToken($result[$this->refreshTokenName]);
             }
+
+            // Renew the obsolete token in the object memory
+            $client = $this->getInstance()->withToken($result[$this->accessTokenName], $user->getTokenSchema());
+            $this->setInstance($client);
 
             return true;
         }

@@ -1,7 +1,8 @@
 <?php
 
 namespace Elzdave\Benevolent\Tests;
-use Orchestra\Testbench\TestCase;
+
+use Elzdave\Benevolent\Tests\TestCase;
 
 class BasicTest extends TestCase
 {
