@@ -2,7 +2,7 @@
 
 namespace Elzdave\Benevolent;
 
-use Elzdave\Benevolent\HttpClient;
+use Elzdave\Benevolent\Http\Http;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
@@ -266,7 +266,7 @@ class UserModel implements AuthenticatableContract
     public function fetchUserByCredentials(array $credentials)
     {
         // make attempt to login to backend
-        $response = HttpClient::post($this->loginPath, $credentials);
+        $response = Http::post($this->loginPath, $credentials);
 
         if ($response->ok()) {
             // populate object attributes

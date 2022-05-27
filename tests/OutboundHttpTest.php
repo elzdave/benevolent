@@ -2,7 +2,7 @@
 
 namespace Elzdave\Benevolent\Tests;
 
-use Elzdave\Benevolent\HttpClient as Http;
+use Elzdave\Benevolent\Http\Http;
 use Elzdave\Benevolent\Tests\TestCase;
 use Illuminate\Support\Facades\Auth;
 
