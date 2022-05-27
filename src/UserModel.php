@@ -294,8 +294,6 @@ class UserModel implements AuthenticatableContract
 
             // and store the current user's identifier into the session
             Session::put(($this->sessionUserIdKeyPrefix . $this->getAuthIdentifierName()), $user[$this->getAuthIdentifierName()]);
-
-            break;
         }
 
         return $this;
