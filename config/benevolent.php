@@ -15,10 +15,11 @@ return [
     'base_url' => rtrim(env('EXT_API_BASE_URI','http://localhost'), '/') . '/',
 
     'paths' => [
-        // Login path. Required.
+        // Login path relative to the base URL. Required.
         'login' => 'auth/signin',
 
-        // Refresh token path. Set to null if you don't use this feature.
+        // Refresh token path relative to the base URL.
+        // Set to null if you plan to not using this feature.
         'refresh_token' => 'auth/refresh',
     ],
 
@@ -45,6 +46,9 @@ return [
 
         // The userdata key name.
         'user_data' => 'userdata',
+
+        // The application login page route name.
+        'login_route' => 'login',
     ],
 
     'features' => [

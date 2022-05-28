@@ -12,49 +12,56 @@ class PendingRequest extends BasePendingRequest
      *
      * @var string
      */
-    protected $refreshTokenUrl = '';
+    protected $refreshTokenUrl;
 
     /**
      * Determine whether current request needs access token.
      *
      * @var bool
      */
-    protected $isAuthenticatedRequest = false;
+    protected $isAuthenticatedRequest;
 
     /**
      * Determine whether to enable refresh token feature.
      *
      * @var bool
      */
-    protected $enableRefreshToken = true;
+    protected $enableRefreshToken;
 
     /**
      * The result data wrapper flag.
      *
      * @var bool
      */
-    protected $withoutWrapper = false;
+    protected $withoutWrapper;
 
     /**
      * The data wrapper key name.
      *
      * @var string
      */
-    protected $wrapperKey = 'data';
+    protected $wrapperKey;
 
     /**
      * The access token key name.
      *
      * @var string
      */
-    protected $accessTokenName = 'access_token';
+    protected $accessTokenName;
 
     /**
      * The refresh token key name.
      *
      * @var string
      */
-    protected $refreshTokenName = 'refresh_token';
+    protected $refreshTokenName;
+
+    /**
+     * The login page route name.
+     * 
+     * @var string
+     */
+    protected $loginRouteName;
 
     /**
      * The default session lifetime in minutes.
@@ -72,13 +79,14 @@ class PendingRequest extends BasePendingRequest
 
     protected function loadConfig()
     {
-        $this->baseUrl = config('benevolent.base_url');
-        $this->refreshTokenUrl = config('benevolent.paths.refresh_token');
-        $this->enableRefreshToken = config('benevolent.features.enable_refresh_token');
-        $this->withoutWrapper = config('benevolent.features.without_wrapper');
-        $this->wrapperKey = config('benevolent.keys.wrapper');
-        $this->accessTokenName = config('benevolent.keys.access_token');
-        $this->refreshTokenName = config('benevolent.keys.refresh_token');
+        $this->baseUrl = config('benevolent.base_url', '');
+        $this->refreshTokenUrl = config('benevolent.paths.refresh_token', '');
+        $this->enableRefreshToken = config('benevolent.features.enable_refresh_token', true);
+        $this->withoutWrapper = config('benevolent.features.without_wrapper', false);
+        $this->wrapperKey = config('benevolent.keys.wrapper', 'data');
+        $this->accessTokenName = config('benevolent.keys.access_token', 'access_token');
+        $this->refreshTokenName = config('benevolent.keys.refresh_token', 'refresh_token');
+        $this->loginRouteName = config('benevolent.keys.login_route', 'login');
 
         // this config is part of default Laravel configs
         $this->sessionLifetime = config('session.lifetime', 120);
@@ -89,7 +97,7 @@ class PendingRequest extends BasePendingRequest
      *
      * @param  string   $token      The access token to override the current user's access token. Default is null.
      * @param  string   $schema     The token schema. Default is 'Bearer'
-     * @return \Elzdave\Benevolent\HttpClient
+     * @return \Elzdave\Benevolent\Http\Factory
      */
     public function useAuth($token = null, $schema = 'Bearer')
     {
@@ -115,7 +123,7 @@ class PendingRequest extends BasePendingRequest
      * @param  string  $method
      * @param  string  $url
      * @param  array  $options
-     * @return \Illuminate\Http\Client\Response
+     * @return \Illuminate\Http\Client\Response|\Illuminate\Http\RedirectResponse
      *
      * @throws \Exception
      */
@@ -130,7 +138,7 @@ class PendingRequest extends BasePendingRequest
             if (! $isTokenRefreshed) {
                 $this->terminateSession();
 
-                return response()->redirectToRoute('login');
+                return response()->redirectToRoute($this->loginRouteName);
             } else {
                 // Retrying request...
                 return parent::send($method, $url, $options);
@@ -143,7 +151,7 @@ class PendingRequest extends BasePendingRequest
     /**
      * Get the request body for refresh token request.
      *
-     * @param  Illuminate\Contracts\Auth\Authenticatable|\Elzdave\Benevolent\ApiUserModel   $user
+     * @param  \Elzdave\Benevolent\UserModel   $user
      * @return array
      */
     protected function getRefreshTokenBodyRequest($user)
@@ -152,8 +160,8 @@ class PendingRequest extends BasePendingRequest
         $refreshToken = method_exists($user, 'getRefreshToken') ? $user->getRefreshToken() : null;
 
         return [
-            'access_token' => $oldAccessToken,
-            'refresh_token' => $refreshToken
+            $this->accessTokenName => $oldAccessToken,
+            $this->refreshTokenName => $refreshToken
         ];
     }
 
