@@ -63,6 +63,6 @@ class Http extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return Factory::class;
+        return 'benevolent.http';
     }
 }

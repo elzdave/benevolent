@@ -2,6 +2,8 @@
 
 namespace Elzdave\Benevolent;
 
+use Elzdave\Benevolent\Benevolent;
+use Elzdave\Benevolent\Http\Factory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
 
@@ -29,6 +31,18 @@ class BenevolentServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->registerConfig();
+        $this->registerUserProvider();
+        $this->registerFacade();        
+    }
+
+    /**
+     * Register any configuration used by this package.
+     *
+     * @return void
+     */
+    protected function registerConfig(): void
+    {
         config([
             'auth.providers.benevolent' => array_merge([
                 'driver' => 'benevolent',
@@ -36,10 +50,31 @@ class BenevolentServiceProvider extends ServiceProvider
         ]);
 
         $this->mergeConfigFrom(__DIR__.'/../config/benevolent.php', 'benevolent');
+    }
 
+    /**
+     * Register the Benevolent user provider.
+     *
+     * @return void
+     */
+    protected function registerUserProvider(): void
+    {
         // Register the service the package provides.
         $this->app->singleton('benevolent', function ($app) {
             return new Benevolent($app->make(UserModel::class));
+        });
+    }
+
+    /**
+     * Register the Benevolent facade.
+     *
+     * @return void
+     */
+    protected function registerFacade(): void
+    {
+        // Register the service the package provides.
+        $this->app->singleton('benevolent.http', function ($app) {
+            return new Factory();
         });
     }
 
@@ -48,7 +83,7 @@ class BenevolentServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    protected function configureProvider()
+    protected function configureProvider(): void
     {
         Auth::resolved(function ($auth) {
             $auth->provider('benevolent', function($app, array $config) {
