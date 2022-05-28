@@ -39,7 +39,7 @@ class OutboundHttpTest extends TestCase
         ];
 
         Http::fake([
-            'benevolent.test/auth/signin' => Http::response($validLogin, 200)
+            $this->baseUrl . '/auth/signin' => Http::response($validLogin, 200)
         ]);
 
         Auth::attempt($credentials);
@@ -60,10 +60,10 @@ class OutboundHttpTest extends TestCase
     public function test_unauthenticated_request_to_public_endpoint()
     {
         Http::fake([
-            'benevolent.test/public' => Http::response($this->successfulResponse, 200)
+            $this->baseUrl . '/public' => Http::response($this->successfulResponse, 200)
         ]);
 
-        $response = Http::get('benevolent.test/public');
+        $response = Http::get($this->baseUrl . '/public');
 
         $this->assertTrue($response->ok());
     }
@@ -71,12 +71,12 @@ class OutboundHttpTest extends TestCase
     public function test_authenticated_request_to_public_endpoint()
     {
         Http::fake([
-            'benevolent.test/public' => Http::response($this->successfulResponse, 200)
+            $this->baseUrl . '/public' => Http::response($this->successfulResponse, 200)
         ]);
 
         $this->authenticate();
 
-        $response = Http::useAuth()->get('benevolent.test/public');
+        $response = Http::useAuth()->get($this->baseUrl . '/public');
 
         $this->assertAuthenticated('web');
         $this->assertTrue($response->ok());
@@ -85,10 +85,10 @@ class OutboundHttpTest extends TestCase
     public function test_unauthenticated_request_to_private_endpoint()
     {
         Http::fake([
-            'benevolent.test/private' => Http::response($this->unauthenticatedResponse, 401)
+            $this->baseUrl . '/private' => Http::response($this->unauthenticatedResponse, 401)
         ]);
 
-        $response = Http::get('benevolent.test/private');
+        $response = Http::get($this->baseUrl . '/private');
         
         $this->assertTrue($response->unauthorized());
     }
@@ -104,12 +104,12 @@ class OutboundHttpTest extends TestCase
         ];
 
         Http::fake([
-            'benevolent.test/private' => Http::response($responseWithToken, 200)
+            $this->baseUrl . '/private' => Http::response($responseWithToken, 200)
         ]);
 
         $this->authenticate();
 
-        $response = Http::useAuth()->get('benevolent.test/private');
+        $response = Http::useAuth()->get($this->baseUrl . '/private');
 
         $this->assertAuthenticated('web');
         $this->assertTrue($response->ok());
@@ -117,9 +117,9 @@ class OutboundHttpTest extends TestCase
         $this->assertEquals($this->accessToken, $response->json()['result']['token']);
     }
 
-    public function test_refresh_access_token()
+    public function test_refresh_access_token_only()
     {
-        $newAccessToken = 'new-access-tok3n';
+        $newAccessToken = 'new-access-t0k3n';
 
         $refreshResponse = [
             'status' => 'success',
@@ -141,15 +141,15 @@ class OutboundHttpTest extends TestCase
         $this->authenticate();
 
         Http::fake([
-            'benevolent.test/private' => Http::sequence()->push($this->unauthenticatedResponse, 401)
-                                                         ->push($responseWithToken, 200),
-            'benevolent.test/auth/refresh' => Http::response($refreshResponse, 200)
+            $this->baseUrl . '/private' => Http::sequence()->push($this->unauthenticatedResponse, 401)
+                                                           ->push($responseWithToken, 200),
+            $this->baseUrl . '/auth/refresh' => Http::response($refreshResponse, 200)
         ]);
 
-        $response = Http::useAuth()->get('benevolent.test/private');
+        $response = Http::useAuth()->get($this->baseUrl . '/private');
         $this->assertTrue($response->unauthorized());
 
-        $response = Http::useAuth()->get('benevolent.test/private');
+        $response = Http::useAuth()->get($this->baseUrl . '/private');
 
         $this->assertAuthenticated('web');
         $this->assertTrue($response->ok());

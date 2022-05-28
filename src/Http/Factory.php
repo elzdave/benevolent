@@ -6,7 +6,7 @@ use Illuminate\Http\Client\Factory as ClientFactory;
 use Illuminate\Contracts\Events\Dispatcher;
 
 /**
- * @method \Elzdave\Benevolent\PendingRequest useAuth(string $token, string $schema = null)
+ * @method \Elzdave\Benevolent\PendingRequest useAuth(string $token = null, string $schema = null)
  * @method \Elzdave\Benevolent\PendingRequest accept(string $contentType)
  * @method \Elzdave\Benevolent\PendingRequest acceptJson()
  * @method \Elzdave\Benevolent\PendingRequest asForm()

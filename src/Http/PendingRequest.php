@@ -68,7 +68,7 @@ class PendingRequest extends BasePendingRequest
      *
      * @var int
      */
-    protected $sessionLifetime = 120;
+    protected $sessionLifetime;
 
     public function __construct(Factory $factory = null)
     {

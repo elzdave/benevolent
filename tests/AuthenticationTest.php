@@ -49,7 +49,7 @@ class AuthenticationTest extends TestCase
         $this->assertGuest('web');
 
         Http::fake([
-            'benevolent.test/*' => Http::response($this->validLogin, 200)
+            $this->baseUrl . '/*' => Http::response($this->validLogin, 200)
         ]);
 
         // attempt login without remember
@@ -69,7 +69,7 @@ class AuthenticationTest extends TestCase
         $this->assertGuest('web');
 
         Http::fake([
-            'benevolent.test/*' => Http::response($this->validLogin, 200)
+            $this->baseUrl . '/*' => Http::response($this->validLogin, 200)
         ]);
 
         // attempt login with remember
@@ -89,7 +89,7 @@ class AuthenticationTest extends TestCase
         Cache::flush();
 
         Http::fake([
-            'benevolent.test/*' => Http::response($this->invalidLogin, 401)
+            $this->baseUrl . '/*' => Http::response($this->invalidLogin, 401)
         ]);
 
         Auth::attempt($this->credentials);

@@ -7,11 +7,7 @@ use Orchestra\Testbench\TestCase as BaseTestCase;
 
 class TestCase extends BaseTestCase
 {
-  public function setUp(): void
-  {
-    parent::setUp();
-    // additional setup
-  }
+  protected $baseUrl = 'http://benevolent.test';
 
   protected function getPackageProviders($app)
   {
@@ -23,6 +19,6 @@ class TestCase extends BaseTestCase
   protected function getEnvironmentSetUp($app)
   {
     $app['config']->set('auth.guards.web.provider', 'benevolent');
-    $app['config']->set('benevolent.base_url', 'benevolent.test');
+    $app['config']->set('benevolent.base_url', $this->baseUrl);
   }
 }

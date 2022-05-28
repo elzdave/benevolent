@@ -12,9 +12,58 @@ class UserModel implements AuthenticatableContract
     /**
      * The user repository.
      *
-     * @var \App\Extensions\CacheRepository
+     * @var \Elzdave\Benevolent\CacheRepository
      */
     protected $repository;
+
+    /**
+     * The result data wrapper flag.
+     *
+     * @var bool
+     */
+    protected $withoutWrapper;
+
+    /**
+     * The data wrapper key name.
+     *
+     * @var string
+     */
+    protected $wrapperKey;
+
+    /**
+     * The access token key name.
+     *
+     * @var string
+     */
+    protected $accessTokenName;
+
+    /**
+     * The refresh token key name.
+     *
+     * @var string
+     */
+    protected $refreshTokenName;
+
+    /**
+     * The token schema key name.
+     *
+     * @var string
+     */
+    protected $tokenSchemaName;
+
+    /**
+     * The user data key name.
+     *
+     * @var string
+     */
+    protected $userDataKeyName;
+
+    /**
+     * The login path.
+     *
+     * @var string
+     */
+    protected $loginPath;
 
     /**
      * Indicates whether the user model has been initialized.
@@ -29,60 +78,11 @@ class UserModel implements AuthenticatableContract
     protected $rememberTokenName = 'remember_token';
 
     /**
-     * The result data wrapper flag.
-     *
-     * @var bool
-     */
-    protected $withoutWrapper = false;
-
-    /**
-     * The data wrapper key name.
-     *
-     * @var string
-     */
-    protected $wrapperKey = 'data';
-
-    /**
-     * The access token key name.
-     *
-     * @var string
-     */
-    protected $accessTokenName = 'access_token';
-
-    /**
-     * The refresh token key name.
-     *
-     * @var string
-     */
-    protected $refreshTokenName = 'refresh_token';
-
-    /**
-     * The token schema key name.
-     *
-     * @var string
-     */
-    protected $tokenSchemaName = 'token_schema';
-
-    /**
-     * The user data key name.
-     *
-     * @var string
-     */
-    protected $userDataKeyName = 'userdata';
-
-    /**
      * The session user ID key prefix.
      *
      * @var string
      */
     protected $sessionUserIdKeyPrefix = 'session_user_';
-
-    /**
-     * The login path.
-     *
-     * @var string
-     */
-    protected $loginPath = '';
 
     public function __construct()
     {
@@ -97,14 +97,14 @@ class UserModel implements AuthenticatableContract
 
     protected function loadConfig()
     {
-        $this->enableRefreshToken = config('benevolent.features.enable_refresh_token');
-        $this->withoutWrapper = config('benevolent.features.without_wrapper');
-        $this->wrapperKey = config('benevolent.keys.wrapper');
-        $this->accessTokenName = config('benevolent.keys.access_token');
-        $this->refreshTokenName = config('benevolent.keys.refresh_token');
-        $this->tokenSchemaName = config('benevolent.keys.token_schema');
-        $this->userDataKeyName = config('benevolent.keys.user_data');
-        $this->loginPath = config('benevolent.paths.login');
+        $this->enableRefreshToken = config('benevolent.features.enable_refresh_token', true);
+        $this->withoutWrapper = config('benevolent.features.without_wrapper', false);
+        $this->wrapperKey = config('benevolent.keys.wrapper', 'data');
+        $this->accessTokenName = config('benevolent.keys.access_token', 'access_token');
+        $this->refreshTokenName = config('benevolent.keys.refresh_token', 'refresh_token');
+        $this->tokenSchemaName = config('benevolent.keys.token_schema', 'token_schema');
+        $this->userDataKeyName = config('benevolent.keys.user_data', 'userdata');
+        $this->loginPath = config('benevolent.paths.login', 'auth/signin');
     }
 
     /**
@@ -284,7 +284,7 @@ class UserModel implements AuthenticatableContract
                 'token' => [
                     'access_token' => $result[$this->accessTokenName],
                     'refresh_token' => $this->enableRefreshToken ? $result[$this->refreshTokenName] : null,
-                    'token_schema' => $result[$this->tokenSchemaName],
+                    'token_schema' => $result[$this->tokenSchemaName] ?? 'Bearer',
                 ],
                 'remember_token' => null,   // will default to null
             ]);

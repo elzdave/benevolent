@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Facade;
 /**
  * @method static \GuzzleHttp\Promise\PromiseInterface response($body = null, $status = 200, $headers = [])
  * @method static \Illuminate\Http\Client\Factory fake($callback = null)
- * @method static \Elzdave\Benevolent\PendingRequest useAuth(string $token, string $schema = null)
+ * @method static \Elzdave\Benevolent\PendingRequest useAuth(string $token = null, string $schema = null)
  * @method static \Elzdave\Benevolent\PendingRequest accept(string $contentType)
  * @method static \Elzdave\Benevolent\PendingRequest acceptJson()
  * @method static \Elzdave\Benevolent\PendingRequest asForm()
