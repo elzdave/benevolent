@@ -2,6 +2,7 @@
 
 namespace Elzdave\Benevolent\Http;
 
+use Elzdave\Benevolent\UserModel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Client\PendingRequest as BasePendingRequest;
 
@@ -101,7 +102,7 @@ class PendingRequest extends BasePendingRequest
      */
     public function useAuth($token = null, $schema = 'Bearer')
     {
-        $user = request()->user();
+        $user = (new UserModel)->findById(Auth::id());
 
         if ($user) {
             $userToken = $token ?? (method_exists($user, 'getAccessToken') ? $user->getAccessToken() : null);
@@ -173,7 +174,7 @@ class PendingRequest extends BasePendingRequest
      */
     protected function refreshToken()
     {
-        $user = request()->user();
+        $user = (new UserModel)->findById(Auth::id());
 
         if ($user) {
             $body = $this->getRefreshTokenBodyRequest($user);

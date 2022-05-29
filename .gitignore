@@ -1,5 +1,6 @@
 /node_modules
 /vendor
+.bak
 .env
 .env.backup
 .phpunit.result.cache

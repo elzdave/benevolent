@@ -3,7 +3,7 @@
 return [
     /*
     |--------------------------------------------------------------------------
-    | External REST API Services
+    | Benevolent External REST API Services
     |--------------------------------------------------------------------------
     |
     | This file is for storing the configuration of external REST API services
