@@ -87,7 +87,7 @@ class PendingRequest extends BasePendingRequest
         $this->wrapperKey = config('benevolent.keys.wrapper', 'data');
         $this->accessTokenName = config('benevolent.keys.access_token', 'access_token');
         $this->refreshTokenName = config('benevolent.keys.refresh_token', 'refresh_token');
-        $this->loginRouteName = config('benevolent.keys.login_route', 'login');
+        $this->loginRouteName = config('benevolent.login_route', 'login');
 
         // this config is part of default Laravel configs
         $this->sessionLifetime = config('session.lifetime', 120);

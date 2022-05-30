@@ -18,7 +18,9 @@ class TestCase extends BaseTestCase
 
     protected function getEnvironmentSetUp($app)
     {
+        $app['config']->set('app.key', 'base64:JnrFfxRu029/+/5T2NtUlK25Cl3XeHHceMVxfCb4dYQ=');
         $app['config']->set('auth.guards.web.provider', 'benevolent');
         $app['config']->set('benevolent.base_url', $this->baseUrl);
+        $app['config']->set('database.default', 'testing');
     }
 }

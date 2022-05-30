@@ -14,6 +14,9 @@ return [
     // The external service's base URL. Required.
     'base_url' => rtrim(env('EXT_API_BASE_URI','http://localhost'), '/') . '/',
 
+    // The application login page route name.
+    'login_route' => 'login',
+
     'paths' => [
         // Login path relative to the base URL. Required.
         'login' => 'auth/signin',
@@ -46,9 +49,6 @@ return [
 
         // The userdata key name.
         'user_data' => 'userdata',
-
-        // The application login page route name.
-        'login_route' => 'login',
     ],
 
     'features' => [
