@@ -29,11 +29,11 @@ class OutboundHttpTest extends TestCase
         $validLogin = [
             'status' => 'success',
             'code' => 200,
-            'result' => [
-                'access_token' => $this->accessToken,
-                'refresh_token' => $this->refreshToken,
-                'token_schema' => 'Bearer',
-                'userdata' => [
+            config('benevolent.keys.wrapper') => [
+                config('benevolent.keys.access_token') => $this->accessToken,
+                config('benevolent.keys.refresh_token') => $this->refreshToken,
+                config('benevolent.keys.token_schema') => 'Bearer',
+                config('benevolent.keys.user_data') => [
                     'id' => 1,
                     'username' => 'elzdave',
                     'email' => 'park@example.com',
@@ -72,7 +72,7 @@ class OutboundHttpTest extends TestCase
             $preparedResponse = [
                 'status' => 'success',
                 'code' => 200,
-                'result' => [
+                config('benevolent.keys.wrapper') => [
                     'authenticated' => $this->isAuthenticatedRequest($request),
                     'token' => $this->isAuthenticatedRequest($request) ?
                                $this->getTokenFromAuthorizationHeader($request) :
@@ -114,7 +114,7 @@ class OutboundHttpTest extends TestCase
             $refreshAccessTokenResponse = [
                 'status' => 'success',
                 'code' => 200,
-                'result' => [
+                config('benevolent.keys.wrapper') => [
                     config('benevolent.keys.access_token') => $this->newAccessToken,
                     config('benevolent.keys.refresh_token') => null,
                 ]
@@ -123,7 +123,7 @@ class OutboundHttpTest extends TestCase
             $refreshBothTokenResponse = [
                 'status' => 'success',
                 'code' => 200,
-                'result' => [
+                config('benevolent.keys.wrapper') => [
                     config('benevolent.keys.access_token') => $this->newAccessToken,
                     config('benevolent.keys.refresh_token') => $this->newRefreshToken,
                 ]
@@ -154,8 +154,8 @@ class OutboundHttpTest extends TestCase
         $this->assertGuest('web');
         $this->assertTrue($response->ok());
 
-        $this->assertFalse($response->json('result.authenticated'));
-        $this->assertNull($response->json('result.token'));
+        $this->assertFalse($response->json(config('benevolent.keys.wrapper') . '.authenticated'));
+        $this->assertNull($response->json(config('benevolent.keys.wrapper') . '.token'));
     }
     
     public function test_authenticated_request_to_public_endpoint()
@@ -168,8 +168,8 @@ class OutboundHttpTest extends TestCase
         $this->assertAuthenticated('web');
         $this->assertTrue($response->ok());
 
-        $this->assertTrue($response->json('result.authenticated'));
-        $this->assertEquals('Bearer ' . $this->accessToken, $response->json('result.token'));
+        $this->assertTrue($response->json(config('benevolent.keys.wrapper') . '.authenticated'));
+        $this->assertEquals('Bearer ' . $this->accessToken, $response->json(config('benevolent.keys.wrapper') . '.token'));
     }
 
     public function test_unauthenticated_request_to_private_endpoint()
@@ -192,8 +192,8 @@ class OutboundHttpTest extends TestCase
         $this->assertAuthenticated('web');
         $this->assertTrue($response->ok());
         
-        $this->assertTrue($response->json('result.authenticated'));
-        $this->assertEquals('Bearer ' . $this->accessToken, $response->json('result.token'));
+        $this->assertTrue($response->json(config('benevolent.keys.wrapper') . '.authenticated'));
+        $this->assertEquals('Bearer ' . $this->accessToken, $response->json(config('benevolent.keys.wrapper') . '.token'));
     }
 
     public function test_refresh_access_token_only()
@@ -209,8 +209,8 @@ class OutboundHttpTest extends TestCase
         $this->assertAuthenticated('web');
         $this->assertTrue($response->ok());
         
-        $this->assertTrue($response->json('result.authenticated'));
-        $this->assertEquals('Bearer ' . $this->newAccessToken, $response->json('result.token'));
+        $this->assertTrue($response->json(config('benevolent.keys.wrapper') . '.authenticated'));
+        $this->assertEquals('Bearer ' . $this->newAccessToken, $response->json(config('benevolent.keys.wrapper') . '.token'));
 
         $this->assertEquals($this->newAccessToken, $user->getAccessToken());
         $this->assertEquals($this->refreshToken, $user->getRefreshToken());
@@ -229,8 +229,8 @@ class OutboundHttpTest extends TestCase
         $this->assertAuthenticated('web');
         $this->assertTrue($response->ok());
         
-        $this->assertTrue($response->json('result.authenticated'));
-        $this->assertEquals('Bearer ' . $this->newAccessToken, $response->json('result.token'));
+        $this->assertTrue($response->json(config('benevolent.keys.wrapper') . '.authenticated'));
+        $this->assertEquals('Bearer ' . $this->newAccessToken, $response->json(config('benevolent.keys.wrapper') . '.token'));
 
         $this->assertEquals($this->newAccessToken, $user->getAccessToken());
         $this->assertEquals($this->newRefreshToken, $user->getRefreshToken());

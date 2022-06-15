@@ -6,6 +6,7 @@ use Illuminate\Contracts\Auth\UserProvider as UserProviderContract;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Hash;
 use Elzdave\Benevolent\UserModel;
+use Illuminate\Support\Arr;
 
 class Benevolent implements UserProviderContract
 {
@@ -93,6 +94,8 @@ class Benevolent implements UserProviderContract
      */
     public function validateCredentials(Authenticatable $user, array $credentials)
     {
-        return Hash::check($credentials['password'], $user->getAuthPassword());
+        $plainPassword = Arr::has($credentials, 'password') ? $credentials['password'] : false;
+
+        return Hash::check($plainPassword, $user->getAuthPassword());
     }
 }

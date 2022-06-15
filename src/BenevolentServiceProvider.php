@@ -33,7 +33,7 @@ class BenevolentServiceProvider extends ServiceProvider
     {
         $this->registerConfig();
         $this->registerUserProvider();
-        $this->registerFacade();        
+        $this->registerFacade();
     }
 
     /**
@@ -87,7 +87,7 @@ class BenevolentServiceProvider extends ServiceProvider
     {
         Auth::resolved(function ($auth) {
             $auth->provider('benevolent', function($app, array $config) {
-                return new Benevolent($app->make(UserModel::class));
+                return $app['benevolent'];
             });
         });
     }

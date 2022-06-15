@@ -102,7 +102,7 @@ class PendingRequest extends BasePendingRequest
      */
     public function useAuth($token = null, $schema = 'Bearer')
     {
-        $user = (new UserModel)->findById(Auth::id());
+        $user = Auth::user();
 
         if ($user) {
             $userToken = $token ?? (method_exists($user, 'getAccessToken') ? $user->getAccessToken() : null);
@@ -174,7 +174,7 @@ class PendingRequest extends BasePendingRequest
      */
     protected function refreshToken()
     {
-        $user = (new UserModel)->findById(Auth::id());
+        $user = Auth::user();
 
         if ($user) {
             $body = $this->getRefreshTokenBodyRequest($user);
@@ -233,7 +233,7 @@ class PendingRequest extends BasePendingRequest
      */
     protected function clearCachedUserData()
     {
-        $user = request()->user();
+        $user = Auth::user();
 
         if ($user) {
             $user->deleteUserData();
