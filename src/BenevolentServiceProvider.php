@@ -112,6 +112,6 @@ class BenevolentServiceProvider extends ServiceProvider
         // Publishing the configuration file.
         $this->publishes([
             __DIR__.'/../config/benevolent.php' => config_path('benevolent.php'),
-        ], 'benevolent.config');
+        ], 'benevolent-config');
     }
 }
