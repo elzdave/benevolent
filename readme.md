@@ -11,7 +11,7 @@ This is where your description should go. Take a look at [contributing.md](contr
 
 Via Composer
 
-``` bash
+```bash
 $ composer require elzdave/benevolent
 ```
 
@@ -23,7 +23,7 @@ Please see the [changelog](changelog.md) for more information on what has change
 
 ## Testing
 
-``` bash
+```bash
 $ composer test
 ```
 
@@ -37,8 +37,8 @@ If you discover any security related issues, please email author@email.com inste
 
 ## Credits
 
-- [Author Name][link-author]
-- [All Contributors][link-contributors]
+- David Eleazar
+- All contributors
 
 ## License
 
@@ -48,7 +48,6 @@ MIT. Please see the [license file](license.md) for more information.
 [ico-downloads]: https://img.shields.io/packagist/dt/elzdave/benevolent.svg?style=flat-square
 [ico-travis]: https://img.shields.io/travis/elzdave/benevolent/master.svg?style=flat-square
 [ico-styleci]: https://styleci.io/repos/12345678/shield
-
 [link-packagist]: https://packagist.org/packages/elzdave/benevolent
 [link-downloads]: https://packagist.org/packages/elzdave/benevolent
 [link-travis]: https://travis-ci.org/elzdave/benevolent
